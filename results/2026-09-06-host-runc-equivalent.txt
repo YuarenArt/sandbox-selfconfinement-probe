@@ -1,0 +1,21 @@
+# host, no container
+# date: 2026-09-06
+# host kernel: 6.8.0-138-generic
+# distro: Ubuntu 22.04.5 LTS
+
+kernel reported: Linux 6.8.0-138-generic
+uid=1001 euid=1001
+
+landlock_abi                 PASS   ABI version 4
+landlock_enforce             PASS   empty ruleset denied open() as expected
+seccomp_filter               PASS   filter installed and enforced (getpid -> EPERM)
+seccomp_notif_sizes          PASS   notif=80 resp=24 data=64
+seccomp_user_notif           PASS   listener fd obtained
+pidfd                        PASS   pidfd_open + pidfd_getfd work
+userns_mountns               FAIL   mkdir failed, errno=EACCES
+ptrace_supervisor            PASS   syscall-stop seen, nr=39 readable
+chroot                       FAIL   errno=EACCES
+open_tree                    PASS   new mount API available
+inotify                      PASS   init + add_watch work
+
+PROBE-DONE

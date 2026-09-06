@@ -1,0 +1,5 @@
+probe
+initrd.gz
+ramfs/
+runsc
+containerd-shim-runsc-v1
