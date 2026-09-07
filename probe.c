@@ -32,7 +32,6 @@
 #endif
 
 #define NR_landlock_create_ruleset 444
-#define NR_landlock_add_rule       445
 #define NR_landlock_restrict_self  446
 #define NR_seccomp                 317
 #define NR_pidfd_open              434
@@ -95,6 +94,10 @@ static void ok(const char *name, const char *detail) {
 
 static void fail(const char *name, const char *detail) {
 	printf("%-24s FAIL   %s\n", name, detail);
+}
+
+static void section(const char *title) {
+	printf("\n-- %s --\n", title);
 }
 
 static const char *errname(int e) {
@@ -515,6 +518,7 @@ static void probe_jail(void) {
 		JAIL_STEP(chdir("/") != 0 || umount2("/old", MNT_DETACH) != 0, 11);
 		for (int c = 0; c <= 40; c++) prctl(PR_CAPBSET_DROP, c, 0, 0, 0);
 		JAIL_STEP(prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) != 0, 12);
+#undef JAIL_STEP
 
 		int outside = open(ctrl_path, O_RDONLY);
 		if (outside >= 0) { close(outside); _exit(40 + 13); }
@@ -612,8 +616,8 @@ static void probe_openat2(void) {
 	close(dir);
 }
 
-// 13. Small existence checks that shape what a supervisor can be built from.
-static void probe_misc(void) {
+// 13. Watching what the workload does, rather than stopping it.
+static void probe_observation(void) {
 	char buf[160];
 
 	int ifd = (int)syscall(__NR_inotify_init1, 0);
@@ -639,6 +643,11 @@ static void probe_misc(void) {
 		snprintf(buf, sizeof(buf), "errno=%s", errname(errno));
 		fail("fanotify", buf);
 	}
+}
+
+// 14. Giving up privilege permanently, and the third route to mediation.
+static void probe_privilege(void) {
+	char buf[160];
 
 	pid_t pid = fork();
 	if (pid == 0) _exit(prctl(PR_SET_SECUREBITS_, 0, 0, 0, 0) == 0 ? ENC_OK : ENC_NEGATIVE);
@@ -701,21 +710,29 @@ int main(void) {
 
 	if (uname(&u) == 0)
 		printf("kernel reported: %s %s\n", u.sysname, u.release);
-	printf("uid=%d euid=%d\n\n", getuid(), geteuid());
+	printf("uid=%d euid=%d\n", getuid(), geteuid());
 
+	// Grouped by what a harness would use them for, so the output reads in the
+	// same order as the table it feeds.
+	section("restricting which paths this process may reach");
 	probe_landlock_abi();
 	probe_landlock_enforce();
+	probe_jail();
+	probe_chroot();
+	probe_openat2();
+	probe_mount_api();
+
+	section("mediating syscalls as they happen");
 	probe_seccomp_filter();
 	probe_notif_sizes();
 	probe_notif_listener();
 	probe_seccomp_trap();
-	probe_pidfd();
 	probe_ptrace_supervisor();
-	probe_jail();
-	probe_chroot();
-	probe_mount_api();
-	probe_openat2();
-	probe_misc();
+	probe_pidfd();
+
+	section("observing and dropping privilege");
+	probe_observation();
+	probe_privilege();
 
 	printf("\nPROBE-DONE\n");
 	if (as_init) {

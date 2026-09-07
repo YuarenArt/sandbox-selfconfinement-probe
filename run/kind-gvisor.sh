@@ -46,8 +46,7 @@ fetch_runsc() {
 }
 
 cd "$HERE"
-make probe
-docker build -q -t sandbox-probe:local . >/dev/null
+make image
 
 fetch_runsc
 

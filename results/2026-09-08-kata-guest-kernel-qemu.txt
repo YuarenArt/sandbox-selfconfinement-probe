@@ -1,6 +1,6 @@
 # Kata guest kernel booted directly in QEMU, probe as PID 1
 # NOT the full Kata path: no kata-agent, no containerd, no Kubernetes
-# date: 2026-09-07
+# date: 2026-09-08
 # kata bundle 4.1.0, kernel vmlinux-6.18.35-202
 # QEMU emulator version 11.0.1 (kata-static)
 # host kernel 6.8.0-138-generic
@@ -8,19 +8,24 @@
 kernel reported: Linux 6.18.35
 uid=0 euid=0
 
+-- restricting which paths this process may reach --
 landlock_abi             PASS   ABI version 7
 landlock_enforce         PASS   empty ruleset denied a readable file with EACCES
+  userns_jail: pivot_root: Invalid argument
+userns_jail              FAIL   pivot_root failed
+chroot                   PASS   root changed, the old tree is no longer reachable
+openat2_beneath          PASS   in-tree open ok, escape refused with EXDEV
+open_tree_clone          PASS   detached tree cloned and attached with move_mount
+
+-- mediating syscalls as they happen --
 seccomp_filter           PASS   getpid filtered to EPERM, getppid still allowed
 seccomp_notif_sizes      PASS   notif=80 resp=24 data=64
 seccomp_user_notif       PASS   listener fd obtained
 seccomp_ret_trap         PASS   SIGSYS handler read the path and mediated open per path
-pidfd                    PASS   pidfd_open + pidfd_getfd against another process work
 ptrace_supervisor        PASS   syscall-stop on the expected call, registers readable
-  userns_jail: pivot_root: Invalid argument
-userns_jail              FAIL   pivot_root failed
-chroot                   PASS   root changed, the old tree is no longer reachable
-open_tree_clone          PASS   detached tree cloned and attached with move_mount
-openat2_beneath          PASS   in-tree open ok, escape refused with EXDEV
+pidfd                    PASS   pidfd_open + pidfd_getfd against another process work
+
+-- observing and dropping privilege --
 inotify                  PASS   init + add_watch work
 fanotify                 PASS   fanotify_init succeeded
 securebits               PASS   PR_SET_SECUREBITS accepted
