@@ -1,0 +1,28 @@
+# Kubernetes pod, runtime: runc (default runtime)
+# pod spec: hardened: runAsNonRoot uid 1000, capabilities drop ALL, seccompProfile RuntimeDefault
+# date: 2026-09-07
+# runsc version release-20260831.0
+# kind v0.27.0 go1.23.6 linux/amd64, node image kindest/node:v1.32.2, host kernel 6.8.0-138-generic
+
+  userns_jail: unshare(CLONE_NEWUSER): Operation not permitted
+kernel reported: Linux 6.8.0-138-generic
+uid=1000 euid=1000
+
+landlock_abi             PASS   ABI version 4
+landlock_enforce         PASS   empty ruleset denied a readable file with EACCES
+seccomp_filter           PASS   getpid filtered to EPERM, getppid still allowed
+seccomp_notif_sizes      PASS   notif=80 resp=24 data=64
+seccomp_user_notif       PASS   listener fd obtained
+seccomp_ret_trap         PASS   SIGSYS handler read the path and mediated open per path
+pidfd                    FAIL   pidfd_open ok, pidfd_getfd errno=EPERM
+ptrace_supervisor        PASS   syscall-stop on the expected call, registers readable
+userns_jail              FAIL   unshare(CLONE_NEWUSER) failed
+chroot                   FAIL   chroot failed
+open_tree_clone          FAIL   OPEN_TREE_CLONE errno=EPERM
+openat2_beneath          PASS   in-tree open ok, escape refused with EXDEV
+inotify                  PASS   init + add_watch work
+fanotify                 FAIL   errno=EPERM
+securebits               FAIL   PR_SET_SECUREBITS refused
+syscall_user_dispatch    PASS   PR_SET_SYSCALL_USER_DISPATCH accepted
+
+PROBE-DONE

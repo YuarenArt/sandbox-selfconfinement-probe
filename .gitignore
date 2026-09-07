@@ -3,3 +3,5 @@ initrd.gz
 ramfs/
 runsc
 containerd-shim-runsc-v1
+*.sha512
+gvisor.tar.*

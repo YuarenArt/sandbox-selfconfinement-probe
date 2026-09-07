@@ -1,0 +1,27 @@
+# Kubernetes pod, runtime: gVisor on an OLDER release, kept for comparison
+# pod spec: minimal: no securityContext
+# date: 2026-09-07
+# runsc version release-20260817.0
+# the only row that differs from release-20260831.0 is openat2_beneath
+
+kernel reported: Linux 4.19.0-gvisor
+uid=0 euid=0
+
+landlock_abi             FAIL   errno=ENOSYS (not implemented)
+landlock_enforce         FAIL   create_ruleset failed
+seccomp_filter           PASS   getpid filtered to EPERM, getppid still allowed
+seccomp_notif_sizes      FAIL   errno=EINVAL
+seccomp_user_notif       FAIL   plain filter ok, NEW_LISTENER errno=EINVAL
+seccomp_ret_trap         PASS   SIGSYS handler read the path and mediated open per path
+pidfd                    PASS   pidfd_open + pidfd_getfd against another process work
+ptrace_supervisor        PASS   syscall-stop on the expected call, registers readable
+userns_jail              PASS   userns + recursive binds + pivot_root hold: outside gone, ro refuses writes
+chroot                   PASS   root changed, the old tree is no longer reachable
+open_tree_clone          FAIL   OPEN_TREE_CLONE errno=EPERM
+openat2_beneath          FAIL   in-tree open refused, errno=ENOSYS (not implemented)
+inotify                  PASS   init + add_watch work
+fanotify                 FAIL   errno=ENOSYS (not implemented)
+securebits               PASS   PR_SET_SECUREBITS accepted
+syscall_user_dispatch    FAIL   errno=EINVAL
+
+PROBE-DONE
