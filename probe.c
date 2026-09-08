@@ -4,8 +4,8 @@
 // kernel booted directly in QEMU.
 //
 // Every check reports the step that failed and its errno. Where a check proves
-// a denial, it first proves the same operation succeeds without the restriction
-// — otherwise a missing file is indistinguishable from a working policy.
+// a denial, it first proves the same operation succeeds without the restriction.
+// Otherwise a missing file is indistinguishable from a working policy.
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>

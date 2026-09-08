@@ -2,10 +2,9 @@
 # Host baseline: the probe with no container around it at all.
 #
 # Run it as the unprivileged user you normally are. Several rows differ from the
-# pod columns purely because of that — chroot, OPEN_TREE_CLONE and fanotify want
-# capabilities a normal user does not have — and the point of keeping this
-# column is exactly to show which rows are about privilege rather than about the
-# runtime.
+# pod columns purely because of that: chroot, OPEN_TREE_CLONE and fanotify want
+# capabilities a normal user does not have. The point of keeping this column is
+# exactly to show which rows are about privilege rather than about the runtime.
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")/.." && pwd)

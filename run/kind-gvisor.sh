@@ -12,8 +12,8 @@ CLUSTER=${CLUSTER:-selfconfinement-probe}
 NODE_IMAGE=${NODE_IMAGE:-kindest/node:v1.32.2}
 # Pinned on purpose: the "latest" channel moves, and what it points at is not
 # always the newest release. The capability surface really does change between
-# releases — openat2 returns ENOSYS on 20260817.0 and works on 20260831.0 — so
-# an unpinned run produces a table that cannot be compared with anything.
+# releases: openat2 returns ENOSYS on 20260817.0 and works on 20260831.0. An
+# unpinned run produces a table that cannot be compared with anything.
 RUNSC_RELEASE=${RUNSC_RELEASE:-20260831.0}
 RUNSC_URL="https://storage.googleapis.com/gvisor/releases/release/${RUNSC_RELEASE}/x86_64"
 HERE=$(cd "$(dirname "$0")/.." && pwd)
